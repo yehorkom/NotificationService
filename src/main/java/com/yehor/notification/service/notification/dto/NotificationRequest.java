@@ -1,6 +1,8 @@
-package com.yehor.notification.service.notification.entity;
+package com.yehor.notification.service.notification.dto;
 
 
+import com.yehor.notification.service.notification.entity.NotificationChannel;
+import com.yehor.notification.service.notification.entity.NotificationType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -27,7 +29,9 @@ public class NotificationRequest {
 	private String message;
 
 	@NotNull(message = "Notification type is required")
-	private NotificationType notificationType;
+	private NotificationType type;
+
+	private String channel;
 
 	private String orderId;
 	private String orderStatus;

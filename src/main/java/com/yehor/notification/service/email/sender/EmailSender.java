@@ -1,6 +1,6 @@
 package com.yehor.notification.service.email.sender;
 
-import com.yehor.notification.service.email.entity.Email;
+import com.yehor.notification.service.email.dto.Email;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

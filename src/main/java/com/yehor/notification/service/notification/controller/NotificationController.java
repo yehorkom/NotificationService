@@ -1,7 +1,7 @@
 package com.yehor.notification.service.notification.controller;
 
 import com.yehor.notification.service.notification.entity.Notification;
-import com.yehor.notification.service.notification.entity.NotificationRequest;
+import com.yehor.notification.service.notification.dto.NotificationRequest;
 import com.yehor.notification.service.notification.entity.NotificationType;
 import com.yehor.notification.service.notification.service.NotificationService;
 import jakarta.validation.Valid;

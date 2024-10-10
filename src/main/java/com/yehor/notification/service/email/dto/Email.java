@@ -1,4 +1,4 @@
-package com.yehor.notification.service.email.entity;
+package com.yehor.notification.service.email.dto;
 
 import lombok.Data;
 import lombok.Builder;

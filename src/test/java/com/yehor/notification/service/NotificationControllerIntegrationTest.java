@@ -2,7 +2,7 @@ package com.yehor.notification.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yehor.notification.service.notification.entity.Notification;
-import com.yehor.notification.service.notification.entity.NotificationRequest;
+import com.yehor.notification.service.notification.dto.NotificationRequest;
 import com.yehor.notification.service.notification.entity.NotificationType;
 import com.yehor.notification.service.notification.repository.NotificationRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -219,5 +219,4 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 			.andExpect(jsonPath("$.content").isArray())
 			.andExpect(jsonPath("$.size").value(5));
 	}
-
 }
