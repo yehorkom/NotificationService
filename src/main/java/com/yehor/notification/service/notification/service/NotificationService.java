@@ -1,21 +1,18 @@
 package com.yehor.notification.service.notification.service;
 
-
-import com.yehor.notification.service.email.service.EmailService;
 import com.yehor.notification.service.notification.entity.Notification;
 import com.yehor.notification.service.notification.dto.NotificationRequest;
 import com.yehor.notification.service.notification.entity.NotificationChannel;
 import com.yehor.notification.service.notification.entity.NotificationType;
 import com.yehor.notification.service.notification.repository.NotificationRepository;
-import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -23,45 +20,42 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Service
 public class NotificationService {
-    private final Map<NotificationChannel, SenderService> senderServices = new HashMap<>();
 	private final NotificationRepository notificationRepository;
+	@NonNull
 	private final SenderService emailSenderService;
+	@NonNull
 	private final SenderService smsSenderService;
 
-//	public NotificationService(@Qualifier("emailSenderService") SenderService emailSenderService,
-//							   @Qualifier("smsSenderService") SenderService smsSenderService) {
-//		senderServices.put(NotificationChannel.EMAIL, emailSenderService);
-//		senderServices.put(NotificationChannel.SMS, smsSenderService);
-//	}
+	private final Map<NotificationChannel, SenderService> senderServices = initializeSenderServices();
 
-	@PostConstruct
-	public void initSenderServices() {
-		senderServices.put(NotificationChannel.EMAIL, emailSenderService);
-		senderServices.put(NotificationChannel.SMS, smsSenderService);
+	private Map<NotificationChannel, SenderService> initializeSenderServices() {
+		return Map.of(
+			NotificationChannel.EMAIL, emailSenderService,
+			NotificationChannel.SMS, smsSenderService
+		);
 	}
 
-//	@Transactional
+
+	@Transactional
 	public void sendNotification(NotificationRequest request) {
 		String body = createMessageBody(request);
 
-		Notification notification = Notification.builder()
-			.id(null)
-			.recipientEmail(request.getRecipientEmail())
-			.recipientPhone(request.getRecipientPhone())
-			.subject(request.getSubject())
-			.body(body)
-			.orderId(request.getOrderId())
-			.orderStatus(request.getOrderStatus())
-			.type(request.getType())
-			.createdAt(LocalDateTime.now())
-			.build();
-		notificationRepository.save(notification);
+			Notification notification = Notification.builder()
+				.id(null)
+				.recipientEmail(request.getRecipientEmail())
+				.recipientPhone(request.getRecipientPhone())
+				.subject(request.getSubject())
+				.body(body)
+				.orderId(request.getOrderId())
+				.orderStatus(request.getOrderStatus())
+				.type(request.getType())
+				.createdAt(LocalDateTime.now())
+				.build();
+			notificationRepository.save(notification);
 
-		NotificationChannel channel = NotificationChannel.valueOf(request.getChannel());
-		senderServices.getOrDefault(channel, senderServices.get(NotificationChannel.EMAIL)).send(request, body);
-
-//		SenderService sender = senderServices.getOrDefault(channel, senderServices.get(NotificationChannel.EMAIL));
-//		emailSender.send(request, body);
+			NotificationChannel channel = NotificationChannel.valueOf(request.getChannel());
+			SenderService senderService = senderServices.getOrDefault(channel, senderServices.get(NotificationChannel.EMAIL));
+			senderService.send(request, body);
 	}
 
 	private String createMessageBody(NotificationRequest request) {
