@@ -21,41 +21,28 @@ import java.util.Optional;
 @Service
 public class NotificationService {
 	private final NotificationRepository notificationRepository;
-	@NonNull
-	private final SenderService emailSenderService;
-	@NonNull
-	private final SenderService smsSenderService;
-
-	private final Map<NotificationChannel, SenderService> senderServices = initializeSenderServices();
-
-	private Map<NotificationChannel, SenderService> initializeSenderServices() {
-		return Map.of(
-			NotificationChannel.EMAIL, emailSenderService,
-			NotificationChannel.SMS, smsSenderService
-		);
-	}
-
+	private final Map<NotificationChannel, SenderService> senderServices;
 
 	@Transactional
 	public void sendNotification(NotificationRequest request) {
 		String body = createMessageBody(request);
 
-			Notification notification = Notification.builder()
-				.id(null)
-				.recipientEmail(request.getRecipientEmail())
-				.recipientPhone(request.getRecipientPhone())
-				.subject(request.getSubject())
-				.body(body)
-				.orderId(request.getOrderId())
-				.orderStatus(request.getOrderStatus())
-				.type(request.getType())
-				.createdAt(LocalDateTime.now())
-				.build();
-			notificationRepository.save(notification);
+		Notification notification = Notification.builder()
+			.id(null)
+			.recipientEmail(request.getRecipientEmail())
+			.recipientPhone(request.getRecipientPhone())
+			.subject(request.getSubject())
+			.body(body)
+			.orderId(request.getOrderId())
+			.orderStatus(request.getOrderStatus())
+			.type(request.getType())
+			.createdAt(LocalDateTime.now())
+			.build();
 
-			NotificationChannel channel = NotificationChannel.valueOf(request.getChannel());
-			SenderService senderService = senderServices.getOrDefault(channel, senderServices.get(NotificationChannel.EMAIL));
-			senderService.send(request, body);
+		notificationRepository.save(notification);
+
+		NotificationChannel channel = NotificationChannel.valueOf(request.getChannel());
+		senderServices.getOrDefault(channel, senderServices.get(NotificationChannel.EMAIL)).send(request, body);
 	}
 
 	private String createMessageBody(NotificationRequest request) {
